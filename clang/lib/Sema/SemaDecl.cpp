@@ -122,50 +122,8 @@ class TypeNameValidatorCCC final : public CorrectionCandidateCallback {
 } // end anonymous namespace
 
 /// Determine whether the token kind starts a simple-type-specifier.
-bool Sema::isSimpleTypeSpecifier(tok::TokenKind Kind) const {
-  switch (Kind) {
-  // FIXME: Take into account the current language when deciding whether a
-  // token kind is a valid type specifier
-  case tok::kw_short:
-  case tok::kw_long:
-  case tok::kw___int64:
-  case tok::kw___int128:
-  case tok::kw_signed:
-  case tok::kw_unsigned:
-  case tok::kw_void:
-  case tok::kw_char:
-  case tok::kw_int:
-  case tok::kw_half:
-  case tok::kw_float:
-  case tok::kw_double:
-  case tok::kw___bf16:
-  case tok::kw__Float16:
-  case tok::kw___float128:
-  case tok::kw_wchar_t:
-  case tok::kw_bool:
-  case tok::kw___underlying_type:
-  case tok::kw___auto_type:
-    return true;
-
-  case tok::kw__Bool:
-    return getLangOpts().C99;
-
-  case tok::annot_typename:
-  case tok::kw_char16_t:
-  case tok::kw_char32_t:
-  case tok::kw_typeof:
-  case tok::annot_decltype:
-  case tok::kw_decltype:
-    return getLangOpts().CPlusPlus;
-
-  case tok::kw_char8_t:
-    return getLangOpts().Char8;
-
-  default:
-    break;
-  }
-
-  return false;
+bool Sema::isSimpleTypeSpecifier(const IdentifierInfo &II) const {
+  return II.isSimpleTypeSpecifier(getLangOpts());
 }
 
 namespace {

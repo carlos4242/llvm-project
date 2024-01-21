@@ -520,7 +520,7 @@ public:
   }
 
   /// Determine whether the token is a simple-type-specifier.
-  bool isSimpleTypeSpecifier() const;
+  bool isSimpleTypeSpecifier(const FormatStyle &Style) const;
 
   bool isObjCAccessSpecifier() const {
     return is(tok::at) && Next &&

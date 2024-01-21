@@ -1391,7 +1391,7 @@ void UnwrappedLineParser::parseStructuralElement(bool IsTopLevel) {
     case tok::caret:
       nextToken();
       if (FormatTok->Tok.isAnyIdentifier() ||
-          FormatTok->isSimpleTypeSpecifier())
+          FormatTok->isSimpleTypeSpecifier(Style))
         nextToken();
       if (FormatTok->is(tok::l_paren))
         parseParens();
@@ -1668,7 +1668,7 @@ bool UnwrappedLineParser::tryToParseLambda() {
   bool SeenArrow = false;
 
   while (FormatTok->isNot(tok::l_brace)) {
-    if (FormatTok->isSimpleTypeSpecifier()) {
+    if (FormatTok->isSimpleTypeSpecifier(Style)) {
       nextToken();
       continue;
     }
@@ -1757,7 +1757,7 @@ bool UnwrappedLineParser::tryToParseLambdaIntroducer() {
       (Previous->isOneOf(tok::identifier, tok::kw_operator, tok::kw_new,
                          tok::kw_delete, tok::l_square) ||
        FormatTok->isCppStructuredBinding(Style) || Previous->closesScope() ||
-       Previous->isSimpleTypeSpecifier())) {
+       Previous->isSimpleTypeSpecifier(Style))) {
     nextToken();
     return false;
   }

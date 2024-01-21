@@ -413,7 +413,7 @@ private:
           (CurrentToken->is(tok::l_paren) && CurrentToken->Next &&
            CurrentToken->Next->isOneOf(tok::star, tok::amp, tok::caret));
       if ((CurrentToken->Previous->isOneOf(tok::kw_const, tok::kw_auto) ||
-           CurrentToken->Previous->isSimpleTypeSpecifier()) &&
+           CurrentToken->Previous->isSimpleTypeSpecifier(Style)) &&
           !(CurrentToken->is(tok::l_brace) ||
             (CurrentToken->is(tok::l_paren) && !ProbablyFunctionTypeLParen)))
         Contexts.back().IsExpression = false;
@@ -1842,7 +1842,7 @@ private:
     return (!IsPPKeyword &&
             PreviousNotConst->isOneOf(tok::identifier, tok::kw_auto)) ||
            PreviousNotConst->is(TT_PointerOrReference) ||
-           PreviousNotConst->isSimpleTypeSpecifier();
+           PreviousNotConst->isSimpleTypeSpecifier(Style);
   }
 
   /// Determine whether ')' is ending a cast.
@@ -1910,7 +1910,7 @@ private:
     // Heuristically try to determine whether the parentheses contain a type.
     auto IsQualifiedPointerOrReference = [](FormatToken *T) {
       // This is used to handle cases such as x = (foo *const)&y;
-      assert(!T->isSimpleTypeSpecifier() && "Should have already been checked");
+      assert(!T->isSimpleTypeSpecifier(Style) && "Should have already been checked");
       // Strip trailing qualifiers such as const or volatile when checking
       // whether the parens could be a cast to a pointer/reference type.
       while (T) {
@@ -1938,7 +1938,7 @@ private:
     bool ParensAreType =
         !Tok.Previous ||
         Tok.Previous->isOneOf(TT_TemplateCloser, TT_TypeDeclarationParen) ||
-        Tok.Previous->isSimpleTypeSpecifier() ||
+        Tok.Previous->isSimpleTypeSpecifier(Style) ||
         IsQualifiedPointerOrReference(Tok.Previous);
     bool ParensCouldEndDecl =
         Tok.Next->isOneOf(tok::equal, tok::semi, tok::l_brace, tok::greater);
@@ -2418,7 +2418,7 @@ static bool isFunctionDeclarationName(const FormatToken &Current,
         Next = Next->Next;
         continue;
       }
-      if ((Next->isSimpleTypeSpecifier() || Next->is(tok::identifier)) &&
+      if ((Next->isSimpleTypeSpecifier(Style) || Next->is(tok::identifier)) &&
           Next->Next && Next->Next->isOneOf(tok::star, tok::amp, tok::ampamp)) {
         // For operator void*(), operator char*(), operator Foo*().
         Next = Next->Next;
@@ -2492,7 +2492,7 @@ static bool isFunctionDeclarationName(const FormatToken &Current,
       Tok = Tok->MatchingParen;
       continue;
     }
-    if (Tok->is(tok::kw_const) || Tok->isSimpleTypeSpecifier() ||
+    if (Tok->is(tok::kw_const) || Tok->isSimpleTypeSpecifier(Style) ||
         Tok->isOneOf(TT_PointerOrReference, TT_StartOfName, tok::ellipsis))
       return true;
     if (Tok->isOneOf(tok::l_brace, tok::string_literal, TT_ObjCMethodExpr) ||
@@ -3043,7 +3043,7 @@ bool TokenAnnotator::spaceRequiredBetween(const AnnotatedLine &Line,
   if (Right.isOneOf(tok::star, tok::amp, tok::ampamp)) {
     const FormatToken *Previous = &Left;
     while (Previous && !Previous->is(tok::kw_operator)) {
-      if (Previous->is(tok::identifier) || Previous->isSimpleTypeSpecifier()) {
+      if (Previous->is(tok::identifier) || Previous->isSimpleTypeSpecifier(Style)) {
         Previous = Previous->getPreviousNonComment();
         continue;
       }
@@ -3150,7 +3150,7 @@ bool TokenAnnotator::spaceRequiredBetween(const AnnotatedLine &Line,
               (!Left.Previous || Left.Previous->isNot(tok::period))))) ||
            (spaceRequiredBeforeParens(Right) &&
             (Left.is(tok::identifier) || Left.isFunctionLikeKeyword() ||
-             Left.is(tok::r_paren) || Left.isSimpleTypeSpecifier() ||
+             Left.is(tok::r_paren) || Left.isSimpleTypeSpecifier(Style) ||
              (Left.is(tok::r_square) && Left.MatchingParen &&
               Left.MatchingParen->is(TT_LambdaLSquare))) &&
             Line.Type != LT_PreprocessorDirective);
@@ -3162,7 +3162,7 @@ bool TokenAnnotator::spaceRequiredBetween(const AnnotatedLine &Line,
            (Left.isNot(tok::colon) || Left.isNot(TT_ObjCMethodExpr));
   if ((Left.isOneOf(tok::identifier, tok::greater, tok::r_square,
                     tok::r_paren) ||
-       Left.isSimpleTypeSpecifier()) &&
+       Left.isSimpleTypeSpecifier(Style)) &&
       Right.is(tok::l_brace) && Right.getNextNonComment() &&
       Right.isNot(BK_Block))
     return false;

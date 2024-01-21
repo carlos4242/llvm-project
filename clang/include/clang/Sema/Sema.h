@@ -2369,7 +2369,7 @@ public:
 
   void DiagnoseUseOfUnimplementedSelectors();
 
-  bool isSimpleTypeSpecifier(tok::TokenKind Kind) const;
+  bool isSimpleTypeSpecifier(const IdentifierInfo &II) const;
 
   ParsedType getTypeName(const IdentifierInfo &II, SourceLocation NameLoc,
                          Scope *S, CXXScopeSpec *SS = nullptr,

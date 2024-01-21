@@ -36,37 +36,9 @@ const char *getTokenTypeName(TokenType Type) {
 
 // FIXME: This is copy&pasted from Sema. Put it in a common place and remove
 // duplication.
-bool FormatToken::isSimpleTypeSpecifier() const {
-  switch (Tok.getKind()) {
-  case tok::kw_short:
-  case tok::kw_long:
-  case tok::kw___int64:
-  case tok::kw___int128:
-  case tok::kw_signed:
-  case tok::kw_unsigned:
-  case tok::kw_void:
-  case tok::kw_char:
-  case tok::kw_int:
-  case tok::kw_half:
-  case tok::kw_float:
-  case tok::kw_double:
-  case tok::kw___bf16:
-  case tok::kw__Float16:
-  case tok::kw___float128:
-  case tok::kw_wchar_t:
-  case tok::kw_bool:
-  case tok::kw___underlying_type:
-  case tok::annot_typename:
-  case tok::kw_char8_t:
-  case tok::kw_char16_t:
-  case tok::kw_char32_t:
-  case tok::kw_typeof:
-  case tok::kw_decltype:
-  case tok::kw__Atomic:
-    return true;
-  default:
-    return false;
-  }
+bool FormatToken::isSimpleTypeSpecifier(const FormatStyle &Style) const {
+  auto LangOptions = getFormattingLangOpts(Style);
+  return Tok.getIdentifierInfo()->isSimpleTypeSpecifier(LangOptions);
 }
 
 TokenRole::~TokenRole() {}
